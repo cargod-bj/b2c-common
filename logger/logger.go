@@ -19,7 +19,7 @@ const (
 )
 
 var (
-	Log              *oplogging.Logger
+	logger           *oplogging.Logger
 	defaultFormatter = `%{time:2006/01/02 - 15:04:05.000} %{longfile} %{color:bold}▶ [%{level:.6s}] %{message}%{color:reset}`
 )
 
@@ -35,7 +35,7 @@ func init() {
 	backends = registerFile(c, backends)
 
 	oplogging.SetBackend(backends...)
-	Log = logger
+	logger = logger
 }
 
 func registerStdout(c config.Log, backends []oplogging.Backend) []oplogging.Backend {
@@ -105,4 +105,14 @@ func getLogFormatter(c config.Log, stdoutWriter bool) oplogging.Formatter {
 		pattern = strings.Replace(pattern, "%{longfile}", "", -1)
 	}
 	return oplogging.MustStringFormatter(pattern)
+}
+
+// Info logs a message using INFO as log level.
+func Info(args ...interface{}) {
+	logger.Info(args)
+}
+
+// Debug logs a message using DEBUG as log level.
+func Debug(args ...interface{}) {
+	logger.Debug(args)
 }
