@@ -3,6 +3,7 @@ package logger
 import (
 	"fmt"
 	"github.com/cargod-bj/b2c-common/config"
+	"github.com/cargod-bj/b2c-common/global"
 	"github.com/cargod-bj/b2c-common/utils"
 	rotatelogs "github.com/lestrrat/go-file-rotatelogs"
 	oplogging "github.com/op/go-logging"
@@ -19,13 +20,12 @@ const (
 )
 
 var (
-	logger           *oplogging.Logger
 	defaultFormatter = `%{time:2006/01/02 - 15:04:05.000} %{longfile} %{color:bold}▶ [%{level:.6s}] %{message}%{color:reset}`
 )
 
 func init() {
 	config.Register()
-	c := config.Log_Config
+	c := global.Log_Config
 	if c.Prefix == "" {
 		_ = fmt.Errorf("logger prefix not found")
 	}
@@ -35,10 +35,10 @@ func init() {
 	backends = registerFile(c, backends)
 
 	oplogging.SetBackend(backends...)
-	logger = logger
+	global.COM_LOG = logger
 }
 
-func registerStdout(c config.Log, backends []oplogging.Backend) []oplogging.Backend {
+func registerStdout(c global.Log, backends []oplogging.Backend) []oplogging.Backend {
 	if c.Stdout != "" {
 		level, err := oplogging.LogLevel(c.Stdout)
 		if err != nil {
@@ -50,7 +50,7 @@ func registerStdout(c config.Log, backends []oplogging.Backend) []oplogging.Back
 	return backends
 }
 
-func registerFile(c config.Log, backends []oplogging.Backend) []oplogging.Backend {
+func registerFile(c global.Log, backends []oplogging.Backend) []oplogging.Backend {
 	if c.File != "" {
 		if ok, _ := utils.PathExists(logDir); !ok {
 			// directory not exist
@@ -80,7 +80,7 @@ func registerFile(c config.Log, backends []oplogging.Backend) []oplogging.Backen
 	return backends
 }
 
-func createBackend(w io.Writer, c config.Log, level oplogging.Level) oplogging.Backend {
+func createBackend(w io.Writer, c global.Log, level oplogging.Level) oplogging.Backend {
 	backend := oplogging.NewLogBackend(w, c.Prefix, 0)
 	stdoutWriter := false
 	if w == os.Stdout {
@@ -92,7 +92,7 @@ func createBackend(w io.Writer, c config.Log, level oplogging.Level) oplogging.B
 	return backendLeveled
 }
 
-func getLogFormatter(c config.Log, stdoutWriter bool) oplogging.Formatter {
+func getLogFormatter(c global.Log, stdoutWriter bool) oplogging.Formatter {
 	pattern := defaultFormatter
 	if !stdoutWriter {
 		// Color is only required for console output
@@ -109,10 +109,10 @@ func getLogFormatter(c config.Log, stdoutWriter bool) oplogging.Formatter {
 
 // Info logs a message using INFO as log level.
 func Info(args ...interface{}) {
-	logger.Info(args)
+	global.COM_LOG.Info(args)
 }
 
 // Debug logs a message using DEBUG as log level.
 func Debug(args ...interface{}) {
-	logger.Debug(args)
+	global.COM_LOG.Debug(args)
 }
