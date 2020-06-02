@@ -30,6 +30,7 @@ func Register() {
 		_ = fmt.Errorf("logger prefix not found")
 	}
 	logger := oplogging.MustGetLogger(module)
+	logger.ExtraCalldepth = 1
 	var backends []oplogging.Backend
 	backends = registerStdout(c, backends)
 	backends = registerFile(c, backends)
