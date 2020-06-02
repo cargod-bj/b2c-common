@@ -3,12 +3,10 @@ package config
 import (
 	"fmt"
 	"github.com/fsnotify/fsnotify"
-	oplogging "github.com/op/go-logging"
 	"github.com/spf13/viper"
 )
 
 var (
-	Logger     *oplogging.Logger
 	Log_Config Log
 	GVA_VP     *viper.Viper
 )
@@ -22,7 +20,7 @@ type Log struct {
 
 const defaultConfigFile = "config.yaml"
 
-func init() {
+func Register() {
 	v := viper.New()
 	v.SetConfigFile(defaultConfigFile)
 	err := v.ReadInConfig()
@@ -40,5 +38,4 @@ func init() {
 	if err := v.Unmarshal(&Log_Config); err != nil {
 		fmt.Println(err)
 	}
-	GVA_VP = v
 }

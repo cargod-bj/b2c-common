@@ -19,11 +19,13 @@ const (
 )
 
 var (
+	Log              *oplogging.Logger
 	defaultFormatter = `%{time:2006/01/02 - 15:04:05.000} %{longfile} %{color:bold}▶ [%{level:.6s}] %{message}%{color:reset}`
 )
 
 func init() {
-	c := config.Log{}
+	config.Register()
+	c := config.Log_Config
 	if c.Prefix == "" {
 		_ = fmt.Errorf("logger prefix not found")
 	}
@@ -33,7 +35,7 @@ func init() {
 	backends = registerFile(c, backends)
 
 	oplogging.SetBackend(backends...)
-	config.Logger = logger
+	Log = logger
 }
 
 func registerStdout(c config.Log, backends []oplogging.Backend) []oplogging.Backend {
