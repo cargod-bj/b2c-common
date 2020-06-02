@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-const defaultConfigFile = "config.yaml"
+const defaultConfigFile = "common_log_config.yaml"
 
 func Register() {
 	v := viper.New()
