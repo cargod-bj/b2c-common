@@ -117,3 +117,8 @@ func Info(args ...interface{}) {
 func Debug(args ...interface{}) {
 	global.COM_LOG.Debug(args)
 }
+
+// Error logs a message using ERROR as log level.
+func Error(args ...interface{}) {
+	global.COM_LOG.Error(args)
+}
