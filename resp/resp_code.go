@@ -14,6 +14,12 @@ const FAILED_UNKNOWN = "9999"
 // 请求失败通用提示
 const FAILED_UNKNOWN_MSG = "failed unknown"
 
+// 数据库操作错误
+const FAILED_DATABASE = "9998"
+
+// 数据库操作失败通用提示
+const FAILED_DATABASE_MSG = "数据库操作失败"
+
 // -----------------代码报错，比如空指针之类的------------------------
 
 // dto映射失败
