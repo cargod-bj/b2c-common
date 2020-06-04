@@ -22,4 +22,10 @@ const FAILED_DTO_DECODE = "5001"
 // dto映射失败提示
 const FAILED_DTO_DECODE_MSG = "数据映射失败"
 
+// dto映射失败：data=nil
+const FAILED_DTO_DATA_NIL = "5002"
+
+// dto映射失败提示：data=nil
+const FAILED_DTO_DATA_NIL_MSG = "Data为空"
+
 // -----------------常用业务错误------------------------
