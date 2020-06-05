@@ -19,7 +19,7 @@ func DecodeDto(input, output interface{}) error {
 			intType := "uint64"
 			if inType.String() == timeType && outType.String() == intType {
 				srcValue := src.(*time.Time)
-				return uint64(srcValue.Unix()), nil
+				return uint64(srcValue.Unix() * 1000), nil
 			} else if inType.String() == intType && outType.String() == timeType {
 				result := time.Unix(int64(src.(uint64)), 0)
 				return &result, nil

@@ -14,11 +14,21 @@ const FAILED_UNKNOWN = "9999"
 // 请求失败通用提示
 const FAILED_UNKNOWN_MSG = "failed unknown"
 
+// -----------------数据库错误------------------------
+
 // 数据库操作错误
-const FAILED_DATABASE = "9998"
+const FAILED_DATABASE = "7001"
 
 // 数据库操作失败通用提示
 const FAILED_DATABASE_MSG = "数据库操作失败"
+
+// -----------------请求参数错误------------------------
+
+// 入参错误
+const FAILED_PARAMS = "6001"
+
+// 入参错误通用提示
+const FAILED_PARAMS_MSG = "请求参数错误"
 
 // -----------------代码报错，比如空指针之类的------------------------
 
