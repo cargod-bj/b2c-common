@@ -6,6 +6,25 @@ import (
 	"time"
 )
 
+// 使用 mapstructure 解析in中的属性到out中
+// 开启了弱匹配，使用如下匹配规则：
+//   - bools to string (true = "1", false = "0")
+//   - numbers to string (base 10)
+//   - bools to int/uint (true = 1, false = 0)
+//   - strings to int/uint (base implied by prefix)
+//   - int to bool (true if value != 0)
+//   - string to bool (accepts: 1, t, T, TRUE, true, True, 0, f, F,
+//     FALSE, false, False. Anything else is an error)
+//   - empty array = empty map and vice versa
+//   - negative numbers to overflowed uint values (base 10)
+//   - slice of maps to a merged map
+//   - single values are converted to slices if required. Each
+//     element is weakly decoded. For example: "4" can become []int{4}
+//     if the target type is an int slice.
+//   - uint64 to time.Time
+//   - uint64 to *time.Time
+//   - time.Time to uint64
+//   - *time.Time to uint64
 func DecodeDto(input, output interface{}) error {
 	config := &mapstructure.DecoderConfig{
 		Metadata:         nil,
