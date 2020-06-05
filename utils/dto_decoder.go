@@ -13,7 +13,6 @@ func DecodeDto(input, output interface{}) error {
 		WeaklyTypedInput: true,
 		ErrorUnused:      false,
 		DecodeHook: func(inType reflect.Type, outType reflect.Type, src interface{}) (interface{}, error) {
-			println("inType.Name() ---> " + inType.String() + "  " + outType.String() + " ")
 			timeType := "*time.Time"
 			timeType2 := "time.Time"
 			intType := "uint64"
