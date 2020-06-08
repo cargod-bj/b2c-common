@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/mitchellh/mapstructure"
 	"reflect"
 	"time"
@@ -33,7 +35,10 @@ func DecodeDto(input, output interface{}) error {
 		ErrorUnused:      false,
 		DecodeHook: func(inType reflect.Type, outType reflect.Type, src interface{}) (interface{}, error) {
 			timeType := "*time.Time"
-			timeType2 := "time.Time"
+			timeTypePrt := "time.Time"
+			timestampType := "timestamp.Timestamp"
+			timestampTypePtr := "*timestamp.Timestamp"
+			int64Type := "int64"
 			intType := "uint64"
 			if inType.String() == timeType && outType.String() == intType {
 				srcValue := src.(*time.Time)
@@ -41,12 +46,44 @@ func DecodeDto(input, output interface{}) error {
 			} else if inType.String() == intType && outType.String() == timeType {
 				result := time.Unix(int64(src.(uint64)), 0)
 				return &result, nil
-			} else if inType.String() == timeType2 && outType.String() == intType {
+			} else if inType.String() == timeTypePrt && outType.String() == intType {
 				srcValue := src.(time.Time)
 				return uint64(srcValue.Unix()), nil
-			} else if inType.String() == intType && outType.String() == timeType2 {
+			} else if inType.String() == intType && outType.String() == timeTypePrt {
 				result := time.Unix(int64(src.(uint64)), 0)
 				return result, nil
+			} else if inType.String() == timeType && outType.String() == int64Type {
+				srcValue := src.(*time.Time)
+				return int64(srcValue.Unix() * 1000), nil
+			} else if inType.String() == int64Type && outType.String() == timeType {
+				result := time.Unix(src.(int64), 0)
+				return &result, nil
+			} else if inType.String() == timeTypePrt && outType.String() == int64Type {
+				srcValue := src.(time.Time)
+				return int64(srcValue.Unix()), nil
+			} else if inType.String() == int64Type && outType.String() == timeTypePrt {
+				result := time.Unix(src.(int64), 0)
+				return result, nil
+			} else if inType.String() == timestampTypePtr && outType.String() == timeType {
+				result, err := ptypes.Timestamp(src.(*timestamp.Timestamp))
+				return &result, err
+			} else if inType.String() == timestampTypePtr && outType.String() == timeTypePrt {
+				result, err := ptypes.Timestamp(src.(*timestamp.Timestamp))
+				return result, err
+			} else if (inType.String() == timeType || inType.String() == timeTypePrt) && outType.String() == timestampTypePtr {
+				result, err := ptypes.TimestampProto(src.(time.Time))
+				return result, err
+			} else if inType.String() == timestampType && outType.String() == timeType {
+				tmp := src.(timestamp.Timestamp)
+				result, err := ptypes.Timestamp(&tmp)
+				return result, err
+			} else if inType.String() == timestampType && outType.String() == timeTypePrt {
+				tmp := src.(timestamp.Timestamp)
+				result, err := ptypes.Timestamp(&tmp)
+				return &result, err
+			} else if (inType.String() == timeType || inType.String() == timeTypePrt) && outType.String() == timestampType {
+				result, err := ptypes.TimestampProto(src.(time.Time))
+				return &result, err
 			}
 			return src, nil
 		},
