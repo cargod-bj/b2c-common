@@ -99,6 +99,7 @@ func DecodeDto(input, output interface{}) error {
 
 /**
  *时间和字符串转换，需要传入字符串格式化类型format
+ *此方法只能支持一种类型的时间转换，由于只传了一种format
  */
 func DecodeStringDto(input, output interface{}, format string) error {
 	config := &mapstructure.DecoderConfig{
