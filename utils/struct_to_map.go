@@ -4,7 +4,18 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"sort"
 )
+
+//获取所有的key
+func GetKeys(maps map[string]interface{}) []string {
+	keys := make([]string, 0, len(maps))
+	for mapKey, _ := range maps {
+		keys = append(keys, mapKey)
+	}
+	sort.Strings(keys)
+	return keys
+}
 
 // 利用反射将结构体转化为map
 func StructToMap(obj interface{}) map[string]interface{} {
