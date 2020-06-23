@@ -18,6 +18,7 @@ func StructToMap(obj interface{}) map[string]interface{} {
 	return data
 }
 
+// 利用反射将结构体List转换为map key唯一
 func ArrayColumn(array interface{}, key string) (result map[string]interface{}, err error) {
 	result = make(map[string]interface{})
 	t := reflect.TypeOf(array)
