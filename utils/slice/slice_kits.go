@@ -70,7 +70,20 @@ func (s uint32Slice) AddIfAbsent(e uint32) uint32Slice {
 func (s uint32Slice) Remove(e uint32) uint32Slice {
 	index := s.IndexOf(e)
 	if index != -1 {
-		return append(s[:index], s[index:]...)
+		if index == 0 {
+			if len(s) == 1 {
+				return uint32Slice{}
+			} else {
+				return s[index+1:]
+			}
+		} else if index == (len(s) - 1) {
+			if len(s) == 1 {
+				return uint32Slice{}
+			} else {
+				return s[:index]
+			}
+		}
+		return append(s[:index], s[index+1:]...)
 	}
 	return s
 }
@@ -115,7 +128,20 @@ func (s uint64Slice) AddIfAbsent(e uint64) uint64Slice {
 func (s uint64Slice) Remove(e uint64) uint64Slice {
 	index := s.IndexOf(e)
 	if index != -1 {
-		return append(s[:index], s[index:]...)
+		if index == 0 {
+			if len(s) == 1 {
+				return uint64Slice{}
+			} else {
+				return s[index+1:]
+			}
+		} else if index == (len(s) - 1) {
+			if len(s) == 1 {
+				return uint64Slice{}
+			} else {
+				return s[:index]
+			}
+		}
+		return append(s[:index], s[index+1:]...)
 	}
 	return s
 }
@@ -160,7 +186,20 @@ func (s strSlice) AddIfAbsent(e string) strSlice {
 func (s strSlice) Remove(e string) strSlice {
 	index := s.IndexOf(e)
 	if index != -1 {
-		return append(s[:index], s[index:]...)
+		if index == 0 {
+			if len(s) == 1 {
+				return strSlice{}
+			} else {
+				return s[index+1:]
+			}
+		} else if index == (len(s) - 1) {
+			if len(s) == 1 {
+				return strSlice{}
+			} else {
+				return s[:index]
+			}
+		}
+		return append(s[:index], s[index+1:]...)
 	}
 	return s
 }
