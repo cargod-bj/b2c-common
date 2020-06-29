@@ -36,7 +36,11 @@ func (s *setU64) Slice() *[]uint64 {
 	return &keys
 }
 
-type SetU32 map[uint32]struct{}
+type setU32 map[uint32]struct{}
+
+func SetU32() setU32 {
+	return make(map[uint32]struct{})
+}
 
 type ISetU32 interface {
 	Add(e uint32)
@@ -45,20 +49,20 @@ type ISetU32 interface {
 	Slice() *[]uint32
 }
 
-func (s *SetU32) Add(e uint32) {
+func (s *setU32) Add(e uint32) {
 	(*s)[e] = struct{}{}
 }
 
-func (s *SetU32) Delete(e uint32) {
+func (s *setU32) Delete(e uint32) {
 	delete(*s, e)
 }
 
-func (s *SetU32) Contain(e uint32) bool {
+func (s *setU32) Contain(e uint32) bool {
 	_, ok := (*s)[e]
 	return ok
 }
 
-func (s *SetU32) Slice() *[]uint32 {
+func (s *setU32) Slice() *[]uint32 {
 	keys := make([]uint32, len(*s))
 	j := 0
 	for k := range *s {
@@ -68,7 +72,11 @@ func (s *SetU32) Slice() *[]uint32 {
 	return &keys
 }
 
-type SetStr map[string]struct{}
+type setStr map[string]struct{}
+
+func SetStr() setStr {
+	return make(map[string]struct{})
+}
 
 type ISetStr interface {
 	Add(e string)
@@ -77,20 +85,20 @@ type ISetStr interface {
 	Slice() *[]string
 }
 
-func (s *SetStr) Add(e string) {
+func (s *setStr) Add(e string) {
 	(*s)[e] = struct{}{}
 }
 
-func (s *SetStr) Delete(e string) {
+func (s *setStr) Delete(e string) {
 	delete(*s, e)
 }
 
-func (s *SetStr) Contain(e string) bool {
+func (s *setStr) Contain(e string) bool {
 	_, ok := (*s)[e]
 	return ok
 }
 
-func (s *SetStr) Slice() *[]string {
+func (s *setStr) Slice() *[]string {
 	keys := make([]string, len(*s))
 	j := 0
 	for k := range *s {
