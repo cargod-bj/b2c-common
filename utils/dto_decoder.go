@@ -4,6 +4,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/mitchellh/mapstructure"
+	"github.com/shopspring/decimal"
 	"reflect"
 	"time"
 )
@@ -40,6 +41,8 @@ func DecodeDto(input, output interface{}) error {
 			timestampTypePtr := "*timestamp.Timestamp"
 			int64Type := "int64"
 			intType := "uint64"
+			decimalTypePtr := "*decimal.Decimal"
+			stringType := "string"
 			if inType.String() == timeType && outType.String() == intType {
 				srcValue := src.(*time.Time)
 				return uint64(srcValue.Unix() * 1000), nil
@@ -84,6 +87,12 @@ func DecodeDto(input, output interface{}) error {
 			} else if (inType.String() == timeType || inType.String() == timeTypePrt) && outType.String() == timestampType {
 				result, err := ptypes.TimestampProto(src.(time.Time))
 				return &result, err
+			} else if (inType.String() == stringType) && outType.String() == decimalTypePtr {
+				result, err := decimal.NewFromString(src.(string))
+				return &result, err
+			} else if (inType.String() == decimalTypePtr) && outType.String() == stringType {
+				result := (src.(*decimal.Decimal)).String()
+				return result, nil
 			}
 			return src, nil
 		},
