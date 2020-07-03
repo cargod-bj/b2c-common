@@ -24,6 +24,8 @@ import (
 //   - single values are converted to slices if required. Each
 //     element is weakly decoded. For example: "4" can become []int{4}
 //     if the target type is an int slice.
+//
+//   扩展的跨类型转换，input中的param必须为指针
 //   - uint64 to time.Time support second、millisecond、nanosecond to time
 //   - uint64 to *time.Time support second、millisecond、nanosecond to time
 //   - int64 to time.Time support second、millisecond、nanosecond to time
