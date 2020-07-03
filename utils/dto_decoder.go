@@ -6,6 +6,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/shopspring/decimal"
 	"reflect"
+	"strconv"
 	"time"
 )
 
@@ -40,19 +41,19 @@ func DecodeDto(input, output interface{}) error {
 			timestampType := "timestamp.Timestamp"
 			timestampTypePtr := "*timestamp.Timestamp"
 			int64Type := "int64"
-			intType := "uint64"
+			uint64Type := "uint64"
 			decimalTypePtr := "*decimal.Decimal"
 			stringType := "string"
-			if inType.String() == timeType && outType.String() == intType {
+			if inType.String() == timeType && outType.String() == uint64Type {
 				srcValue := src.(*time.Time)
 				return uint64(srcValue.Unix() * 1000), nil
-			} else if inType.String() == intType && outType.String() == timeType {
+			} else if inType.String() == uint64Type && outType.String() == timeType {
 				result := time.Unix(int64(src.(uint64)), 0)
 				return &result, nil
-			} else if inType.String() == timeTypePrt && outType.String() == intType {
+			} else if inType.String() == timeTypePrt && outType.String() == uint64Type {
 				srcValue := src.(time.Time)
 				return uint64(srcValue.Unix()), nil
-			} else if inType.String() == intType && outType.String() == timeTypePrt {
+			} else if inType.String() == uint64Type && outType.String() == timeTypePrt {
 				result := time.Unix(int64(src.(uint64)), 0)
 				return result, nil
 			} else if inType.String() == timeType && outType.String() == int64Type {
@@ -122,12 +123,15 @@ func DecodeStringDto(input, output interface{}, format string) error {
 			timestampType := "timestamp.Timestamp"
 			timestampTypePtr := "*timestamp.Timestamp"
 			int64Type := "int64"
-			intType := "uint64"
+			uint64Type := "uint64"
+			uint32Type := "uint32"
+			int32Type := "int32"
+			intType := "int"
 			stringType := "string"
-			if inType.String() == stringType && outType.String() == intType {
+			if inType.String() == stringType && outType.String() == uint64Type {
 				srcValue, err := time.Parse(format, src.(string))
 				return uint64(srcValue.Unix() * 1000), err
-			} else if inType.String() == intType && outType.String() == stringType {
+			} else if inType.String() == uint64Type && outType.String() == stringType {
 				res := time.Unix(int64(src.(uint64)), 0)
 				result := res.Format(format)
 				return &result, nil
@@ -169,6 +173,41 @@ func DecodeStringDto(input, output interface{}, format string) error {
 					return nil, err
 				}
 				result, err := ptypes.TimestampProto(temp)
+				return &result, err
+			} else if inType.String() == stringType && outType.String() == uint64Type {
+				temp, err := strconv.Atoi(src.(string))
+				if err != nil {
+					return nil, err
+				}
+				result := uint64(temp)
+				return &result, err
+			} else if inType.String() == stringType && outType.String() == int64Type {
+				temp, err := strconv.Atoi(src.(string))
+				if err != nil {
+					return nil, err
+				}
+				result := int64(temp)
+				return &result, err
+			} else if inType.String() == stringType && outType.String() == uint32Type {
+				temp, err := strconv.Atoi(src.(string))
+				if err != nil {
+					return nil, err
+				}
+				result := uint32(temp)
+				return &result, err
+			} else if inType.String() == stringType && outType.String() == int32Type {
+				temp, err := strconv.Atoi(src.(string))
+				if err != nil {
+					return nil, err
+				}
+				result := int32(temp)
+				return &result, err
+			} else if inType.String() == stringType && outType.String() == intType {
+				temp, err := strconv.Atoi(src.(string))
+				if err != nil {
+					return nil, err
+				}
+				result := temp
 				return &result, err
 			}
 			return src, nil
