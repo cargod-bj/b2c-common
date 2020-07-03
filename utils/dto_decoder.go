@@ -24,10 +24,17 @@ import (
 //   - single values are converted to slices if required. Each
 //     element is weakly decoded. For example: "4" can become []int{4}
 //     if the target type is an int slice.
-//   - uint64 to time.Time
-//   - uint64 to *time.Time
-//   - time.Time to uint64
-//   - *time.Time to uint64
+//   - uint64 to time.Time support second、millisecond、nanosecond to time
+//   - uint64 to *time.Time support second、millisecond、nanosecond to time
+//   - *time.Time to uint64 will parse to millisecond
+//   - int64 to time.Time support second、millisecond、nanosecond to time
+//   - int64 to *time.Time support second、millisecond、nanosecond to time
+//   - *time.Time to int64 will parse to millisecond
+//   - *timestamp.Timestamp to time.Time
+//   - *time.Time to timestamp.Timestamp
+//   - *decimal.Decimal to string
+//   - string to *decimal.Decimal
+//   - time.Time、timestamp.Timestamp
 func DecodeDto(input, output interface{}) error {
 	config := &mapstructure.DecoderConfig{
 		Metadata:         nil,
@@ -35,65 +42,110 @@ func DecodeDto(input, output interface{}) error {
 		WeaklyTypedInput: true,
 		ErrorUnused:      false,
 		DecodeHook: func(inType reflect.Type, outType reflect.Type, src interface{}) (interface{}, error) {
-			timeType := "*time.Time"
-			timeTypePrt := "time.Time"
+			timeType := "time.Time"
+			timeTypePtr := "*time.Time"
 			timestampType := "timestamp.Timestamp"
 			timestampTypePtr := "*timestamp.Timestamp"
+			uint64Type := "uint64"
 			int64Type := "int64"
-			intType := "uint64"
 			decimalTypePtr := "*decimal.Decimal"
 			stringType := "string"
-			if inType.String() == timeType && outType.String() == intType {
-				srcValue := src.(*time.Time)
-				return uint64(srcValue.Unix() * 1000), nil
-			} else if inType.String() == intType && outType.String() == timeType {
-				result := time.Unix(int64(src.(uint64)), 0)
-				return &result, nil
-			} else if inType.String() == timeTypePrt && outType.String() == intType {
+
+			in := inType.String()
+			out := outType.String()
+
+			if in == timeType {
 				srcValue := src.(time.Time)
-				return uint64(srcValue.Unix()), nil
-			} else if inType.String() == intType && outType.String() == timeTypePrt {
-				result := time.Unix(int64(src.(uint64)), 0)
-				return result, nil
-			} else if inType.String() == timeType && outType.String() == int64Type {
-				srcValue := src.(*time.Time)
-				return int64(srcValue.Unix() * 1000), nil
-			} else if inType.String() == int64Type && outType.String() == timeType {
-				result := time.Unix(src.(int64), 0)
-				return &result, nil
-			} else if inType.String() == timeTypePrt && outType.String() == int64Type {
-				srcValue := src.(time.Time)
-				return int64(srcValue.Unix()), nil
-			} else if inType.String() == int64Type && outType.String() == timeTypePrt {
-				result := time.Unix(src.(int64), 0)
-				return result, nil
-			} else if inType.String() == timestampTypePtr && outType.String() == timeType {
-				result, err := ptypes.Timestamp(src.(*timestamp.Timestamp))
-				return &result, err
-			} else if inType.String() == timestampTypePtr && outType.String() == timeTypePrt {
-				result, err := ptypes.Timestamp(src.(*timestamp.Timestamp))
-				return result, err
-			} else if (inType.String() == timeType || inType.String() == timeTypePrt) && outType.String() == timestampTypePtr {
-				result, err := ptypes.TimestampProto(src.(time.Time))
-				return result, err
-			} else if inType.String() == timestampType && outType.String() == timeType {
-				tmp := src.(timestamp.Timestamp)
-				result, err := ptypes.Timestamp(&tmp)
-				return result, err
-			} else if inType.String() == timestampType && outType.String() == timeTypePrt {
-				tmp := src.(timestamp.Timestamp)
-				result, err := ptypes.Timestamp(&tmp)
-				return &result, err
-			} else if (inType.String() == timeType || inType.String() == timeTypePrt) && outType.String() == timestampType {
-				result, err := ptypes.TimestampProto(src.(time.Time))
-				return &result, err
-			} else if (inType.String() == stringType) && outType.String() == decimalTypePtr {
-				result, err := decimal.NewFromString(src.(string))
-				return &result, err
-			} else if (inType.String() == decimalTypePtr) && outType.String() == stringType {
-				result := (src.(*decimal.Decimal)).String()
-				return result, nil
+				if int64Type == out {
+					return int64(convertTime2Uint64(srcValue)), nil
+				}
+				if uint64Type == out {
+					return convertTime2Uint64(srcValue), nil
+				}
+				if timestampType == out {
+					tmp, err := ptypes.TimestampProto(srcValue)
+					if err == nil {
+						return *tmp, err
+					}
+					return nil, err
+				}
+				if timestampTypePtr == out {
+					result, err := ptypes.TimestampProto(srcValue)
+					return result, err
+				}
 			}
+			if in == timeTypePtr {
+				srcValue := *src.(*time.Time)
+				if int64Type == out {
+					return int64(convertTime2Uint64(srcValue)), nil
+				}
+				if uint64Type == out {
+					return convertTime2Uint64(srcValue), nil
+				}
+				if timestampType == out {
+					result, err := ptypes.TimestampProto(srcValue)
+					return &result, err
+				}
+				if timestampTypePtr == out {
+					result, err := ptypes.TimestampProto(srcValue)
+					return result, err
+				}
+			}
+			if in == int64Type {
+				if timeType == out {
+					result := convertInt642Time(src)
+					return result, nil
+				}
+				if timeTypePtr == out {
+					result := convertInt642Time(src)
+					return &result, nil
+				}
+			}
+			if in == uint64Type {
+				if timeType == out {
+					result := convertInt642Time(src)
+					return result, nil
+				}
+				if timeTypePtr == out {
+					result := convertInt642Time(src)
+					return &result, nil
+				}
+			}
+			if in == timestampType {
+				tmp := src.(timestamp.Timestamp)
+				result, err := ptypes.Timestamp(&tmp)
+				if timeType == out {
+					return result, err
+				}
+				if timeTypePtr == out {
+					return &result, err
+				}
+			}
+			if in == timestampTypePtr {
+				tmp := src.(*timestamp.Timestamp)
+				result, err := ptypes.Timestamp(tmp)
+				if timeType == out {
+					return result, err
+				}
+				if timeTypePtr == out {
+					return &result, err
+				}
+			}
+			if in == decimalTypePtr {
+				temp := src.(*decimal.Decimal)
+				if stringType == out {
+					result := temp.String()
+					return result, nil
+				}
+			}
+			if in == stringType {
+				temp := src.(string)
+				if decimalTypePtr == out {
+					result, err := decimal.NewFromString(temp)
+					return &result, err
+				}
+			}
+
 			return src, nil
 		},
 	}
@@ -104,6 +156,30 @@ func DecodeDto(input, output interface{}) error {
 	}
 
 	return decoder.Decode(input)
+}
+
+func convertInt642Time(src interface{}) time.Time {
+	sec, ok := src.(uint64)
+	if !ok {
+		sec = uint64(src.(int64))
+	}
+	if sec > 1e18 {
+		return time.Unix(0, int64(sec))
+	} else if sec > 1e12 {
+		s := sec / 1e3
+		sec = sec - s*1e3
+		if sec < 0 {
+			sec = sec + 1e3
+			s--
+		}
+		sec = sec * 1e6
+		return time.Unix(int64(s), int64(sec))
+	}
+	return time.Unix(int64(sec), 0)
+}
+
+func convertTime2Uint64(t time.Time) uint64 {
+	return uint64(t.UnixNano() / 1e9)
 }
 
 /**
