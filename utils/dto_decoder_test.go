@@ -24,7 +24,7 @@ func TestDecodeDto(t *testing.T) {
 		&tm,
 		//ts,
 		&ts,
-		//ts,
+		ts,
 		&ts,
 		&d,
 		"123.123",
@@ -50,8 +50,8 @@ type InModel struct {
 	//PTime2TimestampPtr    time.Time
 	PTimePtr2TimestampPtr *time.Time
 	//PTimestamp2Time       timestamp.Timestamp
-	PTimestampPtr2Time *timestamp.Timestamp
-	//PTimestamp2TimePtr    timestamp.Timestamp
+	PTimestampPtr2Time    *timestamp.Timestamp
+	PTimestamp2TimePtr    timestamp.Timestamp
 	PTimestampPtr2TimePtr *timestamp.Timestamp
 	PDecimalPtr2String    *decimal.Decimal
 	PString2DecimalPtr    string

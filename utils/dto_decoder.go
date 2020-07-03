@@ -26,15 +26,17 @@ import (
 //     if the target type is an int slice.
 //   - uint64 to time.Time support second、millisecond、nanosecond to time
 //   - uint64 to *time.Time support second、millisecond、nanosecond to time
-//   - *time.Time to uint64 will parse to millisecond
 //   - int64 to time.Time support second、millisecond、nanosecond to time
 //   - int64 to *time.Time support second、millisecond、nanosecond to time
+//   - *time.Time to uint64 will parse to millisecond
 //   - *time.Time to int64 will parse to millisecond
-//   - *timestamp.Timestamp to time.Time
 //   - *time.Time to timestamp.Timestamp
+//   - *time.Time to *timestamp.Timestamp
+//   - *timestamp.Timestamp to time.Time
+//   - *timestamp.Timestamp to *time.Time
 //   - *decimal.Decimal to string
 //   - string to *decimal.Decimal
-//   - time.Time、timestamp.Timestamp
+//   - time.Time、timestamp.Timestamp and so on, dose not support convert to other type by the soft map
 func DecodeDto(input, output interface{}) error {
 	config := &mapstructure.DecoderConfig{
 		Metadata:         nil,
@@ -54,26 +56,6 @@ func DecodeDto(input, output interface{}) error {
 			in := inType.String()
 			out := outType.String()
 
-			if in == timeType {
-				srcValue := src.(time.Time)
-				if int64Type == out {
-					return int64(convertTime2Uint64(srcValue)), nil
-				}
-				if uint64Type == out {
-					return convertTime2Uint64(srcValue), nil
-				}
-				if timestampType == out {
-					tmp, err := ptypes.TimestampProto(srcValue)
-					if err == nil {
-						return *tmp, err
-					}
-					return nil, err
-				}
-				if timestampTypePtr == out {
-					result, err := ptypes.TimestampProto(srcValue)
-					return result, err
-				}
-			}
 			if in == timeTypePtr {
 				srcValue := *src.(*time.Time)
 				if int64Type == out {
@@ -111,16 +93,7 @@ func DecodeDto(input, output interface{}) error {
 					return &result, nil
 				}
 			}
-			if in == timestampType {
-				tmp := src.(timestamp.Timestamp)
-				result, err := ptypes.Timestamp(&tmp)
-				if timeType == out {
-					return result, err
-				}
-				if timeTypePtr == out {
-					return &result, err
-				}
-			}
+
 			if in == timestampTypePtr {
 				tmp := src.(*timestamp.Timestamp)
 				result, err := ptypes.Timestamp(tmp)
