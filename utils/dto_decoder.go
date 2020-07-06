@@ -154,5 +154,5 @@ func convertInt642Time(src interface{}) time.Time {
 }
 
 func convertTime2Uint64(t time.Time) uint64 {
-	return uint64(t.UnixNano() / 1e9)
+	return uint64(t.UnixNano() / 1e6)
 }
