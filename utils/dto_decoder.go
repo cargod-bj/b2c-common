@@ -61,10 +61,14 @@ func DecodeDto(input, output interface{}) error {
 			if in == timeTypePtr {
 				srcValue := *src.(*time.Time)
 				if int64Type == out {
-					return int64(convertTime2Uint64(srcValue)), nil
+					return convertTime2Int64(srcValue), nil
 				}
 				if uint64Type == out {
-					return convertTime2Uint64(srcValue), nil
+					var timestamp int64
+					if timestamp = convertTime2Int64(srcValue); timestamp < 0 {
+						timestamp = 0
+					}
+					return uint64(timestamp), nil
 				}
 				if timestampType == out {
 					result, err := ptypes.TimestampProto(srcValue)
@@ -153,6 +157,6 @@ func convertInt642Time(src interface{}) time.Time {
 	return time.Unix(int64(sec), 0)
 }
 
-func convertTime2Uint64(t time.Time) uint64 {
-	return uint64(t.UnixNano() / 1e6)
+func convertTime2Int64(t time.Time) int64 {
+	return t.UnixNano() / 1e6
 }
