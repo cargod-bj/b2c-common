@@ -5,6 +5,6 @@ import (
 	"strings"
 )
 
-func ArrayToString(array []interface{}) string {
+func ArrayToString(array interface{}) string {
 	return strings.Replace(strings.Trim(fmt.Sprint(array), "[]"), " ", ",", -1)
 }
