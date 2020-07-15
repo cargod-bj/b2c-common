@@ -120,6 +120,9 @@ func DecodeDto(input, output interface{}) error {
 			if in == stringType {
 				temp := src.(string)
 				if decimalTypePtr == out {
+					if temp == "" {
+						return nil, nil
+					}
 					result, err := decimal.NewFromString(temp)
 					return &result, err
 				}
