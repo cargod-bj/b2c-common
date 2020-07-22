@@ -1,6 +1,4 @@
-package resp
-
-// TODO 当前类已弃用，后续维护请使用respCode包下的代码
+package respCode
 
 // 请求成功
 const SUCCESS = "0000"
@@ -47,3 +45,15 @@ const FAILED_DTO_DATA_NIL = "5002"
 const FAILED_DTO_DATA_NIL_MSG = "Data为空"
 
 // -----------------常用业务错误------------------------
+
+// 没有权限
+const FAILED_AUTHORITY_NONE = "4001"
+
+// 没有权限
+const FAILED_AUTHORITY_NONE_MSG = "权限错误"
+
+// 状态错误
+const FAILED_STATUS_ERR = "4002"
+
+// 状态错误
+const FAILED_STATUS_ERR_MSG = "当前状态不支持此操作"
