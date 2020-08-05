@@ -20,7 +20,7 @@ const FAILED_UNKNOWN_MSG = "failed unknown"
 const FAILED_DATABASE = "7001"
 
 // 数据库操作失败通用提示
-const FAILED_DATABASE_MSG = "数据库操作失败"
+const FAILED_DATABASE_MSG = "Database operation failed"
 
 // -----------------请求参数错误------------------------
 
@@ -28,7 +28,7 @@ const FAILED_DATABASE_MSG = "数据库操作失败"
 const FAILED_PARAMS = "6001"
 
 // 入参错误通用提示
-const FAILED_PARAMS_MSG = "请求参数错误"
+const FAILED_PARAMS_MSG = "Request parameter error"
 
 // -----------------代码报错，比如空指针之类的------------------------
 
@@ -36,13 +36,13 @@ const FAILED_PARAMS_MSG = "请求参数错误"
 const FAILED_DTO_DECODE = "5001"
 
 // dto映射失败提示
-const FAILED_DTO_DECODE_MSG = "数据映射失败"
+const FAILED_DTO_DECODE_MSG = "Data mapping failed"
 
 // dto映射失败：data=nil
 const FAILED_DTO_DATA_NIL = "5002"
 
 // dto映射失败提示：data=nil
-const FAILED_DTO_DATA_NIL_MSG = "Data为空"
+const FAILED_DTO_DATA_NIL_MSG = "Data is empty"
 
 // -----------------常用业务错误------------------------
 
@@ -50,10 +50,10 @@ const FAILED_DTO_DATA_NIL_MSG = "Data为空"
 const FAILED_AUTHORITY_NONE = "4001"
 
 // 没有权限
-const FAILED_AUTHORITY_NONE_MSG = "权限错误"
+const FAILED_AUTHORITY_NONE_MSG = "Permission error"
 
 // 状态错误
 const FAILED_STATUS_ERR = "4002"
 
 // 状态错误
-const FAILED_STATUS_ERR_MSG = "当前状态不支持此操作"
+const FAILED_STATUS_ERR_MSG = "The current state does not support this operation"
