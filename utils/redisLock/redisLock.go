@@ -10,11 +10,14 @@ var redisClient *redis.Client
 /**
  *	Redis锁 result true 加锁成功，false已存在锁
  */
-func Lock(lockKey string, expiration time.Duration) (result bool) {
+func Lock(lockKey string, expiration uint64) (result bool) {
+	var expTime time.Duration
 	if expiration == 0 {
-		expiration = time.Second * time.Duration(30)
+		expTime = time.Second * time.Duration(30)
+	} else {
+		expTime = time.Second * time.Duration(expiration)
 	}
-	var lock = redisClient.SetNX(lockKey, lockKey, expiration)
+	var lock = redisClient.SetNX(lockKey, lockKey, expTime)
 	return lock.Val()
 }
 
