@@ -30,6 +30,6 @@ func UnLock(lockKey string) (result bool) {
 }
 
 //使用前需要先进行初始化
-func InitLockUtil(client *redis.Client) {
+func InitRedisLock(client *redis.Client) {
 	redisClient = client
 }
