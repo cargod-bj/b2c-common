@@ -25,7 +25,7 @@ const (
 	LocalIn = "in"
 	// 泰国
 	LocalTh = "th"
-	// 泰国
+	// 中国
 	LocalZh = "zh"
 )
 

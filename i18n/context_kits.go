@@ -10,11 +10,17 @@ import (
 
 var languageCache sync.Map
 
+// 通过context传向微服务的i18n内容的key值
 const I18nContextKey = "language$Value$Key"
+
+// 默认的每个lang对象的存活时长
 const defaultLifeDuration = int64(5 * time.Minute)
 
+// 自定义的lang对象存活时长，如果 <=0 则使用defaultLifeDuration
+var lifeDuration = int64(0)
+
 func init() {
-	// 定时删除缓存中无用的cache信息，缓存的声明周期是5分钟，这里的轮训是3分钟删一次，所以一个cache最大生命周期是6分钟左右
+	// 定时删除缓存中无用的cache信息，缓存的声明周期是5分钟，这里的轮训是3分钟删一次，所以一个cache最大生命周期是6分钟
 	go func() {
 		ticker := time.NewTicker(3 * time.Minute)
 		for {
@@ -61,7 +67,7 @@ func InitI18nByLang(language string, autoRecycle bool) {
 func initInner(language string, autoRecycle bool) {
 	var rt int64
 	if autoRecycle {
-		rt = time.Now().UnixNano() + defaultLifeDuration
+		rt = time.Now().UnixNano() + getLifeDuration()
 	}
 	l := lang{lang: language, recycleTime: rt}
 	if language == "" {
@@ -88,6 +94,17 @@ func GetLang() string {
 func Recycle() {
 	gid := goroutineKits.GetGID()
 	languageCache.Delete(gid)
+}
+
+func SetLifeDuration(duration time.Duration) {
+	lifeDuration = int64(duration)
+}
+
+func getLifeDuration() int64 {
+	if lifeDuration > 0 {
+		return lifeDuration
+	}
+	return defaultLifeDuration
 }
 
 type lang struct {
