@@ -13,6 +13,6 @@ func GetGID() uint64 {
 	b = bytes.TrimPrefix(b, []byte("goroutine "))
 	b = b[:bytes.IndexByte(b, ' ')]
 	n, _ := strconv.ParseUint(string(b), 10, 64)
-	println("currentId:", n)
 	return n
 }
+
