@@ -35,11 +35,9 @@ type message struct {
 // 如果是在微服务中使用，只需要调用相关微服务的Init方法即可，本方法是全量初始化方法。
 func InitRC() {
 	rcMap[RcSuccess] = message{
-		langEn: "",
-		langId: "",
-		langTh: "",
-		langZh: "",
+		langEn: "Success", langId: "Success Id", langTh: "Success Th", langZh: "Success Zh",
 	}
+
 	InitCarRC()
 	InitCustomerRC()
 	InitFileRC()

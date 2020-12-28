@@ -24,7 +24,7 @@ func init() {
 	go func() {
 		ticker := time.NewTicker(3 * time.Minute)
 		for {
-			println("start recycle i18n cache")
+			println("recycle i18n cache")
 			select {
 			case <-ticker.C:
 				curr := time.Now().UnixNano()
