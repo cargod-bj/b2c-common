@@ -10,6 +10,23 @@ import (
 	"time"
 )
 
+const (
+	timeType         = "time.Time"
+	timeTypePtr      = "*time.Time"
+	timestampType    = "timestamp.Timestamp"
+	timestampTypePtr = "*timestamp.Timestamp"
+	uint64Type       = "uint64"
+	int64Type        = "int64"
+	uint32Type       = "uint32"
+	int32Type        = "int32"
+	intType          = "intType"
+	uintType         = "uintType"
+	float64Type      = "float64Type"
+	float32Type      = "float32Type"
+	decimalTypePtr   = "*decimal.Decimal"
+	stringType       = "string"
+)
+
 // 使用 mapstructure 解析in中的属性到out中
 // 开启了弱匹配，使用如下匹配规则：
 //   - bools to string (true = "1", false = "0")
@@ -47,18 +64,6 @@ func DecodeDto(input, output interface{}) error {
 		WeaklyTypedInput: true,
 		ErrorUnused:      false,
 		DecodeHook: func(inType reflect.Type, outType reflect.Type, src interface{}) (interface{}, error) {
-			timeType := "time.Time"
-			timeTypePtr := "*time.Time"
-			timestampType := "timestamp.Timestamp"
-			timestampTypePtr := "*timestamp.Timestamp"
-			uint64Type := "uint64"
-			int64Type := "int64"
-			uint32Type := "uint32"
-			int32Type := "int32"
-			intType := "intType"
-			uintType := "uintType"
-			decimalTypePtr := "*decimal.Decimal"
-			stringType := "string"
 
 			in := inType.String()
 			out := outType.String()
@@ -137,22 +142,9 @@ func DecodeDto(input, output interface{}) error {
 					result, err := decimal.NewFromString(temp)
 					return &result, err
 				}
-				if temp == "" {
-					return 0, nil
-				}
-				switch out {
-				case uint64Type:
-					return strconv.ParseUint(temp, 10, 64)
-				case int64Type:
-					return strconv.ParseInt(temp, 10, 64)
-				case uint32Type:
-					return strconv.ParseUint(temp, 10, 32)
-				case int32Type:
-					return strconv.ParseInt(temp, 10, 32)
-				case intType:
-					return strconv.ParseInt(temp, 10, 0)
-				case uintType:
-					return strconv.ParseUint(temp, 10, 0)
+				i, err, done := tryParseNum(temp, out)
+				if done {
+					return i, err
 				}
 			}
 
@@ -166,6 +158,44 @@ func DecodeDto(input, output interface{}) error {
 	}
 
 	return decoder.Decode(input)
+}
+
+func tryParseNum(temp string, out string) (result interface{}, err error, processed bool) {
+	if out == uint64Type || out == int64Type || out == uint32Type || out == int32Type ||
+		out == intType || out == uintType || out == float64Type || out == float32Type {
+		if temp == "" {
+			return 0, nil, true
+		}
+	} else {
+		return nil, nil, false
+	}
+	switch out {
+	case uint64Type:
+		result, err = strconv.ParseUint(temp, 10, 64)
+		processed = true
+	case int64Type:
+		result, err = strconv.ParseInt(temp, 10, 64)
+		processed = true
+	case uint32Type:
+		result, err = strconv.ParseUint(temp, 10, 32)
+		processed = true
+	case int32Type:
+		result, err = strconv.ParseInt(temp, 10, 32)
+		processed = true
+	case intType:
+		result, err = strconv.ParseInt(temp, 10, 0)
+		processed = true
+	case uintType:
+		result, err = strconv.ParseUint(temp, 10, 0)
+		processed = true
+	case float64Type:
+		result, err = strconv.ParseFloat(temp, 64)
+		processed = true
+	case float32Type:
+		result, err = strconv.ParseFloat(temp, 32)
+		processed = true
+	}
+	return
 }
 
 func convertInt642Time(src interface{}) *time.Time {
