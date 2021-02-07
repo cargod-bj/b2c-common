@@ -6,7 +6,25 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/shopspring/decimal"
 	"reflect"
+	"strconv"
 	"time"
+)
+
+const (
+	timeType         = "time.Time"
+	timeTypePtr      = "*time.Time"
+	timestampType    = "timestamp.Timestamp"
+	timestampTypePtr = "*timestamp.Timestamp"
+	uint64Type       = "uint64"
+	int64Type        = "int64"
+	uint32Type       = "uint32"
+	int32Type        = "int32"
+	intType          = "intType"
+	uintType         = "uintType"
+	float64Type      = "float64Type"
+	float32Type      = "float32Type"
+	decimalTypePtr   = "*decimal.Decimal"
+	stringType       = "string"
 )
 
 // 使用 mapstructure 解析in中的属性到out中
@@ -46,14 +64,6 @@ func DecodeDto(input, output interface{}) error {
 		WeaklyTypedInput: true,
 		ErrorUnused:      false,
 		DecodeHook: func(inType reflect.Type, outType reflect.Type, src interface{}) (interface{}, error) {
-			timeType := "time.Time"
-			timeTypePtr := "*time.Time"
-			timestampType := "timestamp.Timestamp"
-			timestampTypePtr := "*timestamp.Timestamp"
-			uint64Type := "uint64"
-			int64Type := "int64"
-			decimalTypePtr := "*decimal.Decimal"
-			stringType := "string"
 
 			in := inType.String()
 			out := outType.String()
@@ -64,11 +74,11 @@ func DecodeDto(input, output interface{}) error {
 					return convertTime2Int64(srcValue), nil
 				}
 				if uint64Type == out {
-					var timestamp int64
-					if timestamp = convertTime2Int64(srcValue); timestamp < 0 {
-						timestamp = 0
+					var ts int64
+					if ts = convertTime2Int64(srcValue); ts < 0 {
+						ts = 0
 					}
-					return uint64(timestamp), nil
+					return uint64(ts), nil
 				}
 				if timestampType == out {
 					result, err := ptypes.TimestampProto(srcValue)
@@ -82,21 +92,27 @@ func DecodeDto(input, output interface{}) error {
 			if in == int64Type {
 				if timeType == out {
 					result := convertInt642Time(src)
-					return result, nil
+					if result == nil {
+						return nil, nil
+					}
+					return *result, nil
 				}
 				if timeTypePtr == out {
 					result := convertInt642Time(src)
-					return &result, nil
+					return result, nil
 				}
 			}
 			if in == uint64Type {
 				if timeType == out {
 					result := convertInt642Time(src)
+					if result == nil {
+						return nil, nil
+					}
 					return result, nil
 				}
 				if timeTypePtr == out {
 					result := convertInt642Time(src)
-					return &result, nil
+					return result, nil
 				}
 			}
 
@@ -126,6 +142,10 @@ func DecodeDto(input, output interface{}) error {
 					result, err := decimal.NewFromString(temp)
 					return &result, err
 				}
+				i, err, done := tryParseNum(temp, out)
+				if done {
+					return i, err
+				}
 			}
 
 			return src, nil
@@ -140,13 +160,55 @@ func DecodeDto(input, output interface{}) error {
 	return decoder.Decode(input)
 }
 
-func convertInt642Time(src interface{}) time.Time {
+func tryParseNum(temp string, out string) (result interface{}, err error, processed bool) {
+	if out == uint64Type || out == int64Type || out == uint32Type || out == int32Type ||
+		out == intType || out == uintType || out == float64Type || out == float32Type {
+		if temp == "" {
+			return 0, nil, true
+		}
+	} else {
+		return nil, nil, false
+	}
+	switch out {
+	case uint64Type:
+		result, err = strconv.ParseUint(temp, 10, 64)
+		processed = true
+	case int64Type:
+		result, err = strconv.ParseInt(temp, 10, 64)
+		processed = true
+	case uint32Type:
+		result, err = strconv.ParseUint(temp, 10, 32)
+		processed = true
+	case int32Type:
+		result, err = strconv.ParseInt(temp, 10, 32)
+		processed = true
+	case intType:
+		result, err = strconv.ParseInt(temp, 10, 0)
+		processed = true
+	case uintType:
+		result, err = strconv.ParseUint(temp, 10, 0)
+		processed = true
+	case float64Type:
+		result, err = strconv.ParseFloat(temp, 64)
+		processed = true
+	case float32Type:
+		result, err = strconv.ParseFloat(temp, 32)
+		processed = true
+	}
+	return
+}
+
+func convertInt642Time(src interface{}) *time.Time {
 	sec, ok := src.(uint64)
 	if !ok {
 		sec = uint64(src.(int64))
 	}
+	if sec == 0 {
+		return nil
+	}
+	var result time.Time
 	if sec > 1e18 {
-		return time.Unix(0, int64(sec))
+		result = time.Unix(0, int64(sec))
 	} else if sec > 1e12 {
 		s := sec / 1e3
 		sec = sec - s*1e3
@@ -155,9 +217,10 @@ func convertInt642Time(src interface{}) time.Time {
 			s--
 		}
 		sec = sec * 1e6
-		return time.Unix(int64(s), int64(sec))
+		result = time.Unix(int64(s), int64(sec))
 	}
-	return time.Unix(int64(sec), 0)
+	result = time.Unix(int64(sec), 0)
+	return &result
 }
 
 func convertTime2Int64(t time.Time) int64 {
