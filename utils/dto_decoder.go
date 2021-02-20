@@ -219,7 +219,6 @@ func convertInt642Time(src interface{}) *time.Time {
 		sec = sec * 1e6
 		result = time.Unix(int64(s), int64(sec))
 	}
-	result = time.Unix(int64(sec), 0)
 	return &result
 }
 
