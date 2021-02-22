@@ -55,7 +55,7 @@ const (
 //   - *timestamp.Timestamp to time.Time
 //   - *timestamp.Timestamp to *time.Time
 //   - *decimal.Decimal to string
-//   - string to *decimal.Decimal
+//   - string to *decimal.Decimal、int、uint、int32、uint32、int64、uint64、float32、float64
 //   - time.Time、timestamp.Timestamp and so on, dose not support convert to other type by the soft map
 func DecodeDto(input, output interface{}) error {
 	config := &mapstructure.DecoderConfig{
@@ -218,6 +218,8 @@ func convertInt642Time(src interface{}) *time.Time {
 		}
 		sec = sec * 1e6
 		result = time.Unix(int64(s), int64(sec))
+	} else {
+		result = time.Unix(int64(sec), 0)
 	}
 	return &result
 }
